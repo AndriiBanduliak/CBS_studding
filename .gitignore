@@ -1,0 +1,67 @@
+# ========================
+# Python specific ignores
+# ========================
+
+# Byte-code / Cache files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+*.egg
+sdist/
+develop-eggs/
+parts/
+wheels/
+pip-wheel-metadata/
+
+# Virtual Environments
+# (очень важно игнорировать, так как они могут весить сотни мегабайт)
+venv/
+.venv/
+env/
+.env/
+ENV/
+.tox/
+
+# Test & Coverage reports
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+nosetests.xml
+coverage.xml
+
+# Environment variables
+# Файл с секретными ключами, паролями и т.д. НИКОГДА не должен быть в репозитории!
+.env
+.env.*
+!.env.example
+
+# ========================
+# IDE / Editor specific ignores
+# ========================
+.idea/      # для PyCharm
+.vscode/    # для Visual Studio Code
+.project
+.pydevproject
+.settings/
+*.sublime-workspace
+*.sublime-project
+
+# ========================
+# OS specific ignores
+# ========================
+.DS_Store          # для macOS
+Thumbs.db          # для Windows
+ehthumbs.db        # для Windows
+desktop.ini        # для Windows
+
+# ========================
+# Other
+# ========================
+# Jupyter Notebook Checkpoints
+.ipynb_checkpoints```
