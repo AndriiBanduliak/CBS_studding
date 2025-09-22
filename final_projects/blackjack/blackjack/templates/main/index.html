@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}Blackjack - Home{% endblock %}
+
+{% block content %}
+<div class="jumbotron text-center">
+    <h1 class="display-4">Welcome to Blackjack!</h1>
+    <p class="lead">Play the classic card game against the dealer.</p>
+    <hr class="my-4">
+    <p>Try to get a hand value closer to 21 than the dealer without going over.</p>
+    {% if current_user.is_authenticated %}
+    <a class="btn btn-primary btn-lg" href="{{ url_for('game.index') }}" role="button">Play Now</a>
+    {% else %}
+    <a class="btn btn-primary btn-lg" href="{{ url_for('auth.login') }}" role="button">Login to Play</a>
+    <a class="btn btn-secondary btn-lg" href="{{ url_for('auth.register') }}" role="button">Register</a>
+    {% endif %}
+</div>
+
+<div class="row mt-5">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Game Rules</h5>
+                <p class="card-text">
+                    <ul>
+                        <li>Cards 2-10 are worth their face value</li>
+                        <li>Face cards (J, Q, K) are worth 10</li>
+                        <li>Aces are worth 1 or 11, whichever is more advantageous</li>
+                        <li>The goal is to get closer to 21 than the dealer without going over</li>
+                        <li>Blackjack (an Ace and a 10-value card) pays 3:2</li>
+                    </ul>
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Player Actions</h5>
+                <p class="card-text">
+                    <ul>
+                        <li><strong>Hit:</strong> Take another card</li>
+                        <li><strong>Stand:</strong> Take no more cards</li>
+                        <li><strong>Double Down:</strong> Double your bet and take one more card</li>
+                        <li><strong>Split:</strong> Split a pair into two separate hands</li>
+                    </ul>
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Dealer Rules</h5>
+                <p class="card-text">
+                    <ul>
+                        <li>The dealer must hit until their hand totals 17 or higher</li>
+                        <li>The dealer's first card is face up, the second is face down</li>
+                        <li>If the dealer busts, all remaining players win</li>
+                    </ul>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

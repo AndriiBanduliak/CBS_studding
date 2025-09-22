@@ -1,0 +1,12 @@
+Welcome to Blackjack!
+
+Dear {{ user.username }},
+
+Thank you for registering. Please click the link below to verify your email address:
+
+{{ url_for('auth.verify_email', token=token, _external=True) }}
+
+If you did not register for this account, please ignore this email.
+
+Best regards,
+The Blackjack Team

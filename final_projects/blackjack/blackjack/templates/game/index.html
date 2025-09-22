@@ -1,0 +1,354 @@
+{% extends "base.html" %}
+
+{% block title %}Blackjack - Game{% endblock %}
+
+{% block styles %}
+<style>
+    .card-container {
+        min-height: 150px;
+        background-color: #277a2d;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    .playing-card {
+        display: inline-block;
+        width: 100px;
+        height: 140px;
+        background-color: white;
+        border-radius: 5px;
+        margin-right: 10px;
+        box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+        position: relative;
+        text-align: center;
+    }
+    .playing-card.hidden {
+        background-image: url('{{ url_for("static", filename="img/card-back.png") }}');
+        background-size: cover;
+    }
+    .card-value {
+        font-size: 24px;
+        font-weight: bold;
+        margin-top: 10px;
+    }
+    .card-suit {
+        font-size: 36px;
+        margin-top: 10px;
+    }
+    .hearts, .diamonds {
+        color: red;
+    }
+    .clubs, .spades {
+        color: black;
+    }
+    #game-controls {
+        margin-top: 20px;
+    }
+    #bet-controls {
+        margin-bottom: 20px;
+    }
+    .result-message {
+        font-size: 24px;
+        font-weight: bold;
+        margin: 20px 0;
+    }
+    .hint-box {
+        background-color: #f8f9fa;
+        padding: 10px;
+        border-radius: 5px;
+        margin-top: 10px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <h2>Blackjack Game</h2>
+        <div id="game-area">
+            <div id="dealer-area">
+                <h3>Dealer's Hand <span id="dealer-score" class="badge bg-secondary"></span></h3>
+                <div id="dealer-cards" class="card-container"></div>
+            </div>
+            
+            <div id="player-area">
+                <h3>Your Hand <span id="player-score" class="badge bg-primary"></span></h3>
+                <div id="player-cards" class="card-container"></div>
+            </div>
+            
+            <div id="result-area" class="text-center" style="display: none;">
+                <div id="result-message" class="result-message"></div>
+                <button id="new-game-btn" class="btn btn-primary">New Game</button>
+            </div>
+            
+            <div id="bet-controls">
+                <h4>Place Your Bet</h4>
+                <div class="input-group mb-3">
+                    <span class="input-group-text">$</span>
+                    <input type="number" id="bet-amount" class="form-control" value="10" min="1" max="{{ current_user.currency_balance }}">
+                    <button id="place-bet-btn" class="btn btn-success">Place Bet</button>
+                </div>
+                <p>Your balance: $<span id="player-balance">{{ current_user.currency_balance }}</span></p>
+            </div>
+            
+            <div id="game-controls" style="display: none;">
+                <button id="hit-btn" class="btn btn-primary">Hit</button>
+                <button id="stand-btn" class="btn btn-secondary">Stand</button>
+                <button id="double-btn" class="btn btn-warning">Double Down</button>
+                <button id="hint-btn" class="btn btn-info">Hint</button>
+                <div id="hint-box" class="hint-box" style="display: none;"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                Game Statistics
+            </div>
+            <div class="card-body">
+                <p>Games Played: {{ current_user.games_played }}</p>
+                <p>Games Won: {{ current_user.games_won }}</p>
+                <p>Games Lost: {{ current_user.games_lost }}</p>
+                <p>Win/Loss Ratio: {{ current_user.win_loss_ratio() }}</p>
+                <p>Biggest Win: ${{ current_user.biggest_win }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        // Card suit symbols
+        const suitSymbols = {
+            'hearts': '♥',
+            'diamonds': '♦',
+            'clubs': '♣',
+            'spades': '♠'
+        };
+        
+        // Card display values
+        const cardValues = {
+            1: 'A',
+            11: 'J',
+            12: 'Q',
+            13: 'K'
+        };
+        
+        // Game state
+        let gameState = 'betting';
+        let currentBet = 0;
+        
+        // Initialize new game
+        function initGame() {
+            $.post('/game/start', function(data) {
+                if (data.success) {
+                    gameState = data.game.state;
+                    $('#bet-controls').show();
+                    $('#game-controls').hide();
+                    $('#result-area').hide();
+                    $('#dealer-cards').empty();
+                    $('#player-cards').empty();
+                    $('#dealer-score').text('');
+                    $('#player-score').text('');
+                }
+            });
+        }
+        
+        // Place bet and start game
+        $('#place-bet-btn').click(function() {
+            const betAmount = parseInt($('#bet-amount').val());
+            const balance = parseInt($('#player-balance').text());
+            
+            if (betAmount <= 0) {
+                alert('Please enter a valid bet amount');
+                return;
+            }
+            
+            if (betAmount > balance) {
+                alert('Insufficient funds');
+                return;
+            }
+            
+            $.post('/game/bet', { bet_amount: betAmount }, function(data) {
+                if (data.success) {
+                    currentBet = betAmount;
+                    gameState = data.game.state;
+                    updateGameDisplay(data.game);
+                    
+                    $('#bet-controls').hide();
+                    $('#game-controls').show();
+                    
+                    // Check if game is already over (blackjack)
+                    if (gameState === 'game_over') {
+                        showResult(data);
+                    }
+                } else {
+                    alert(data.error);
+                }
+            });
+        });
+        
+        // Hit action
+        $('#hit-btn').click(function() {
+            if (gameState !== 'player_turn') return;
+            
+            $.post('/game/hit', function(data) {
+                if (data.success) {
+                    gameState = data.game.state;
+                    updateGameDisplay(data.game);
+                    
+                    if (gameState === 'game_over') {
+                        showResult(data);
+                    }
+                }
+            });
+        });
+        
+        // Stand action
+        $('#stand-btn').click(function() {
+            if (gameState !== 'player_turn') return;
+            
+            $.post('/game/stand', function(data) {
+                if (data.success) {
+                    gameState = data.game.state;
+                    updateGameDisplay(data.game);
+                    showResult(data);
+                }
+            });
+        });
+        
+        // Double down action
+        $('#double-btn').click(function() {
+            if (gameState !== 'player_turn') return;
+            
+            $.post('/game/double', function(data) {
+                if (data.success) {
+                    currentBet *= 2;
+                    gameState = data.game.state;
+                    updateGameDisplay(data.game);
+                    showResult(data);
+                } else {
+                    alert(data.error);
+                }
+            });
+        });
+        
+        // Get hint
+        $('#hint-btn').click(function() {
+            if (gameState !== 'player_turn') return;
+            
+            $.get('/game/hint', function(data) {
+                if (data.success && data.hint) {
+                    $('#hint-box').text('Hint: ' + data.hint).show();
+                    setTimeout(function() {
+                        $('#hint-box').fadeOut();
+                    }, 5000);
+                }
+            });
+        });
+        
+        // Start new game
+        $('#new-game-btn').click(function() {
+            initGame();
+        });
+        
+        // Update game display
+        function updateGameDisplay(game) {
+            // Update dealer cards
+            $('#dealer-cards').empty();
+            let dealerValue = 0;
+            
+            game.dealer_hand.forEach(function(card) {
+                const cardElement = createCardElement(card);
+                $('#dealer-cards').append(cardElement);
+                
+                if (card.is_face_up) {
+                    dealerValue += getCardValue(card);
+                }
+            });
+            
+            if (gameState === 'dealer_turn' || gameState === 'game_over') {
+                $('#dealer-score').text(dealerValue);
+            }
+            
+            // Update player cards
+            $('#player-cards').empty();
+            let playerValue = 0;
+            
+            game.player_hand.forEach(function(card) {
+                const cardElement = createCardElement(card);
+                $('#player-cards').append(cardElement);
+                
+                if (card.is_face_up) {
+                    playerValue += getCardValue(card);
+                }
+            });
+            
+            $('#player-score').text(playerValue);
+            
+            // Update button states
+            if (gameState !== 'player_turn') {
+                $('#hit-btn, #stand-btn, #double-btn, #hint-btn').prop('disabled', true);
+            } else {
+                $('#hit-btn, #stand-btn, #hint-btn').prop('disabled', false);
+                
+                // Double down only available on first action with two cards
+                $('#double-btn').prop('disabled', game.player_hand.length !== 2);
+            }
+        }
+        
+        // Create card element
+        function createCardElement(card) {
+            const cardDiv = $('<div>').addClass('playing-card');
+            
+            if (!card.is_face_up) {
+                cardDiv.addClass('hidden');
+                return cardDiv;
+            }
+            
+            const displayValue = cardValues[card.value] || card.value;
+            const suitSymbol = suitSymbols[card.suit];
+            
+            const valueDiv = $('<div>').addClass('card-value').text(displayValue);
+            const suitDiv = $('<div>').addClass('card-suit ' + card.suit).text(suitSymbol);
+            
+            cardDiv.append(valueDiv).append(suitDiv);
+            
+            return cardDiv;
+        }
+        
+        // Get card value for scoring
+        function getCardValue(card) {
+            if (!card.is_face_up) return 0;
+            
+            if (card.value === 1) return 11; // Ace
+            if (card.value > 10) return 10; // Face cards
+            return card.value;
+        }
+        
+        // Show game result
+        function showResult(data) {
+            $('#game-controls').hide();
+            $('#result-area').show();
+            
+            let resultText = data.result;
+            if (data.payout > 0) {
+                resultText += ` - You won $${data.payout}!`;
+            } else if (data.payout < 0) {
+                resultText += ` - You lost $${Math.abs(data.payout)}`;
+            } else {
+                resultText += ' - Push (Tie)';
+            }
+            
+            $('#result-message').text(resultText);
+            $('#player-balance').text(data.balance);
+        }
+        
+        // Initialize the game on page load
+        initGame();
+    });
+</script>
+{% endblock %}
