@@ -8,7 +8,7 @@ Welcome to the central repository that tracks my progress through the 2025–202
 - **Experimentation Space** – Notebook files and practice folders record exploratory work, quick prototypes, and additional study beyond the core syllabus.
 
 ## Getting Started
-1. Clone the repository: `git clone https://github.com/<your-user>/<your-repo>.git`
+1. Clone the repository: `git clone https://github.com/AndriiBanduliak/CBS_studding.git`
 2. Create and activate a virtual environment:
    ```bash
    python -m venv .venv
