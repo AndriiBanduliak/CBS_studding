@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+
+{% block title %}Головна - Law CRM{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="fas fa-home"></i> Головна</h1>
+    <div>
+        <a href="{% url 'case_management:case_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Нова справа
+        </a>
+        <a href="{% url 'core:client_create' %}" class="btn btn-outline-primary">
+            <i class="fas fa-user-plus"></i> Новий клієнт
+        </a>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <div class="card-body">
+                <h5 class="card-title"><i class="fas fa-briefcase"></i> Всього справ</h5>
+                <h2>{{ total_cases }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+            <div class="card-body">
+                <h5 class="card-title"><i class="fas fa-sync"></i> Активних справ</h5>
+                <h2>{{ active_cases }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+            <div class="card-body">
+                <h5 class="card-title"><i class="fas fa-users"></i> Клієнтів</h5>
+                <h2>{{ clients_count }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+            <div class="card-body">
+                <h5 class="card-title"><i class="fas fa-clock"></i> Годин цього місяця</h5>
+                <h2>-</h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Cases -->
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0"><i class="fas fa-briefcase"></i> Останні справи</h5>
+        <a href="{% url 'case_management:case_list' %}" class="btn btn-sm btn-outline-primary">
+            Всі справи <i class="fas fa-arrow-right"></i>
+        </a>
+    </div>
+    <div class="card-body">
+        {% if recent_cases %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Номер справи</th>
+                        <th>Назва</th>
+                        <th>Клієнт</th>
+                        <th>Статус</th>
+                        <th>Дата створення</th>
+                        <th>Дії</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for case in recent_cases %}
+                    <tr>
+                        <td><strong>{{ case.case_number }}</strong></td>
+                        <td>{{ case.title|truncatewords:5 }}</td>
+                        <td>{{ case.client.full_name }}</td>
+                        <td>
+                            <span class="badge bg-primary">{{ case.get_status_display }}</span>
+                        </td>
+                        <td>{{ case.created_at|date:"d.m.Y" }}</td>
+                        <td>
+                            <a href="{% url 'case_management:case_detail' case.pk %}" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-muted">Немає справ</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+

@@ -1,0 +1,9 @@
+pytest>=8.0
+pytest-django>=4.8
+factory_boy>=3.3
+Faker>=28.0
+ruff>=0.7
+black>=24.8
+isort>=5.13
+pre-commit>=4.0
+

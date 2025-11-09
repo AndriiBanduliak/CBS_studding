@@ -1,0 +1,66 @@
+/* Drag and drop styles */
+
+.drop-zone {
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.drop-zone.drag-over {
+    border-color: var(--primary-color) !important;
+    background: rgba(99, 102, 241, 0.1) !important;
+    transform: scale(1.02);
+}
+
+.drop-zone.drag-over::before {
+    content: 'Drop audio file here';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--primary-color);
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    font-weight: 600;
+    z-index: 10;
+    pointer-events: none;
+    box-shadow: var(--shadow-lg);
+}
+
+/* Audio preview */
+.audio-preview {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: var(--bg-secondary);
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+.audio-preview audio {
+    width: 100%;
+    margin-top: 0.5rem;
+}
+
+.audio-preview-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.audio-preview-remove {
+    background: var(--danger-color);
+    color: white;
+    border: none;
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.75rem;
+}
+
+.audio-preview-remove:hover {
+    background: #dc2626;
+}
+

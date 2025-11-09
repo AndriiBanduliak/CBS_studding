@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block title %}Вхід - Law CRM{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center align-items-center" style="min-height: 70vh;">
+    <div class="col-md-6 col-lg-4">
+        <div class="card shadow">
+            <div class="card-body p-5">
+                <div class="text-center mb-4">
+                    <i class="fas fa-balance-scale fa-3x text-primary mb-3"></i>
+                    <h3>Law CRM</h3>
+                    <p class="text-muted">CRM для Адвокатського Об'єднання</p>
+                </div>
+
+                {% if form.errors %}
+                <div class="alert alert-danger">
+                    <strong>Помилка!</strong> Невірне ім'я користувача або пароль.
+                </div>
+                {% endif %}
+
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="id_username" class="form-label">Ім'я користувача</label>
+                        <input type="text" name="username" class="form-control" id="id_username" 
+                               placeholder="Введіть ім'я користувача" required autofocus>
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_password" class="form-label">Пароль</label>
+                        <input type="password" name="password" class="form-control" id="id_password" 
+                               placeholder="Введіть пароль" required>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="remember_me">
+                        <label class="form-check-label" for="remember_me">
+                            Запам'ятати мене
+                        </label>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-sign-in-alt"></i> Увійти
+                    </button>
+                </form>
+            </div>
+        </div>
+        <div class="text-center mt-3">
+            <small class="text-muted">© 2024 Law CRM. Всі права захищені.</small>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

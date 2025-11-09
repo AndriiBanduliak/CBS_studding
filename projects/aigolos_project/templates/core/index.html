@@ -1,0 +1,201 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}AIGolos - AI Voice Assistant{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+<link rel="stylesheet" href="{% static 'css/loading.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+    <div class="container">
+        <div class="dashboard-header">
+            <h1>Welcome to AIGolos</h1>
+            <p class="subtitle">Your AI Voice Assistant Platform</p>
+        </div>
+
+        <div class="features-grid">
+            <div class="feature-card" id="trainer-card" style="grid-column: 1 / -1; max-width: 600px; margin: 0 auto 2rem;">
+                <div class="feature-icon">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+                <h3>🇩🇪 German Speaking Trainer</h3>
+                <p>Practice your German pronunciation with AI-powered feedback</p>
+                <button class="btn-feature" onclick="window.openTrainer && window.openTrainer()" style="background: var(--gradient-primary); font-size: 1.1rem; padding: 1rem 2.5rem;">
+                    <i class="fas fa-play-circle"></i> Start Training
+                </button>
+            </div>
+
+            <div class="feature-card" id="asr-card">
+                <div class="feature-icon">
+                    <i class="fas fa-microphone"></i>
+                </div>
+                <h3>Speech Recognition</h3>
+                <p>Convert your speech to text with high accuracy</p>
+                <button class="btn-feature" onclick="window.openASR && window.openASR()">
+                    <i class="fas fa-play"></i> Try ASR
+                </button>
+            </div>
+
+            <div class="feature-card" id="llm-card">
+                <div class="feature-icon">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <h3>AI Chat</h3>
+                <p>Chat with our intelligent AI assistant</p>
+                <button class="btn-feature" onclick="window.openChat && window.openChat()">
+                    <i class="fas fa-comments"></i> Start Chat
+                </button>
+            </div>
+
+            <div class="feature-card" id="tts-card">
+                <div class="feature-icon">
+                    <i class="fas fa-volume-up"></i>
+                </div>
+                <h3>Text-to-Speech</h3>
+                <p>Convert text to natural-sounding speech</p>
+                <button class="btn-feature" onclick="window.openTTS && window.openTTS()">
+                    <i class="fas fa-headphones"></i> Try TTS
+                </button>
+            </div>
+        </div>
+
+        <!-- ASR Modal -->
+        <div id="asr-modal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="window.closeModal('asr-modal')">&times;</span>
+                <h2>Speech Recognition</h2>
+                <div class="asr-container">
+                    <div class="audio-upload">
+                        <input type="file" id="audio-file" accept="audio/*" hidden>
+                        <button class="btn-upload" onclick="document.getElementById('audio-file').click()">
+                            <i class="fas fa-upload"></i> Upload Audio File
+                        </button>
+                        <p id="file-name"></p>
+                        <p style="margin-top: 0.5rem; font-size: 0.875rem; color: var(--text-secondary);">
+                            Or drag and drop audio file here
+                        </p>
+                    </div>
+                    <div class="recording-controls">
+                        <button class="btn-record" id="record-btn" onclick="window.toggleRecording && window.toggleRecording()">
+                            <i class="fas fa-circle"></i> <span id="record-text">Start Recording</span>
+                        </button>
+                    </div>
+                    <div class="result-container">
+                        <h3>Transcription Result:</h3>
+                        <div id="transcription-result" class="result-text"></div>
+                        <div id="transcription-loading" class="loading" style="display: none;">
+                        <div class="loading-spinner"></div>
+                        <p style="margin-top: 0.5rem; color: var(--text-secondary);">Processing audio...</p>
+                    </div>
+                        <button class="btn-feature" onclick="window.transcribeAudioFromPreview && window.transcribeAudioFromPreview()" style="margin-top: 1rem; display: none;" id="transcribe-btn">
+                            <i class="fas fa-play"></i> Transcribe Audio
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Modal -->
+        <div id="chat-modal" class="modal">
+            <div class="modal-content chat-modal">
+                <span class="close" onclick="window.closeModal('chat-modal')">&times;</span>
+                <h2>AI Chat Assistant</h2>
+                <div class="chat-container">
+                    <div id="chat-messages" class="chat-messages"></div>
+                    <div class="chat-input-container">
+                        <input type="text" id="chat-input" placeholder="Ask me anything..." onkeypress="window.handleChatKeyPress && window.handleChatKeyPress(event)">
+                        <button class="btn-send" onclick="window.sendMessage && window.sendMessage()">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                    <div id="chat-loading" class="loading" style="display: none;">
+                        <div class="typing-indicator">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                        <p style="margin-top: 0.5rem; color: var(--text-secondary);">AI is thinking...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TTS Modal -->
+        <div id="tts-modal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="window.closeModal('tts-modal')">&times;</span>
+                <h2>Text-to-Speech</h2>
+                <div class="tts-container">
+                    <textarea id="tts-text" placeholder="Enter text to convert to speech..." rows="6"></textarea>
+                    <div class="tts-controls">
+                        <select id="tts-voice">
+                            <option value="">Default Voice</option>
+                            <option value="de_DE/thorsten/medium">German (Thorsten)</option>
+                            <option value="en_US/lessac/medium">English (Lessac)</option>
+                        </select>
+                        <button class="btn-synthesize" onclick="window.synthesizeSpeech && window.synthesizeSpeech()">
+                            <i class="fas fa-play"></i> Synthesize
+                        </button>
+                    </div>
+                    <div id="tts-audio-container" style="display: none;">
+                        <audio id="tts-audio" controls></audio>
+                    </div>
+                    <div id="tts-loading" class="loading" style="display: none;">
+                        <div class="loading-spinner"></div>
+                        <p style="margin-top: 0.5rem; color: var(--text-secondary);">Generating speech...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- German Trainer Modal -->
+        <div id="trainer-modal" class="modal">
+            <div class="modal-content" style="max-width: 700px;">
+                <span class="close" onclick="window.closeModal('trainer-modal')">&times;</span>
+                <h2>🇩🇪 German Speaking Trainer</h2>
+                <div class="trainer-container">
+                    <div class="trainer-step" id="step-1">
+                        <h3>Step 1: Listen</h3>
+                        <div class="trainer-text-display" id="trainer-text-display">
+                            <p style="font-size: 1.3rem; margin: 1rem 0; color: var(--text-primary);">Click "Generate Sentence" to get a German sentence</p>
+                        </div>
+                        <button class="btn-feature" onclick="window.generateGermanSentence && window.generateGermanSentence()" style="margin: 1rem 0;">
+                            <i class="fas fa-magic"></i> Generate German Sentence
+                        </button>
+                        <button class="btn-feature" onclick="window.playGermanSentence && window.playGermanSentence()" id="play-sentence-btn" style="display: none; margin: 1rem 0; background: var(--info-color);">
+                            <i class="fas fa-volume-up"></i> Play Sentence
+                        </button>
+                    </div>
+                    
+                    <div class="trainer-step" id="step-2" style="display: none;">
+                        <h3>Step 2: Record Your Pronunciation</h3>
+                        <p style="color: var(--text-secondary); margin-bottom: 1rem;">Try to repeat the sentence in German</p>
+                        <button class="btn-record" id="trainer-record-btn" onclick="window.toggleTrainerRecording && window.toggleTrainerRecording()" style="margin: 1rem 0;">
+                            <i class="fas fa-circle"></i> <span id="trainer-record-text">Start Recording</span>
+                        </button>
+                        <div id="trainer-recording-status" style="display: none; margin-top: 1rem;">
+                            <p style="color: var(--text-secondary);">Recording... Speak now!</p>
+                        </div>
+                    </div>
+                    
+                    <div class="trainer-step" id="step-3" style="display: none;">
+                        <h3>Step 3: Get Feedback</h3>
+                        <div class="trainer-feedback" id="trainer-feedback">
+                            <div class="loading-spinner"></div>
+                            <p>Analyzing your pronunciation...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/dashboard.js' %}"></script>
+{% endblock %}
+

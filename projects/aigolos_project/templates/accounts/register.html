@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Register - AIGolos{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h1><i class="fas fa-user-plus"></i> Sign Up</h1>
+            <p>Create your AIGolos account</p>
+        </div>
+        <form id="register-form" class="auth-form">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="username">
+                    <i class="fas fa-user"></i> Username
+                </label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div class="form-group">
+                <label for="email">
+                    <i class="fas fa-envelope"></i> Email
+                </label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="password">
+                    <i class="fas fa-lock"></i> Password
+                </label>
+                <input type="password" id="password" name="password" required minlength="8">
+            </div>
+            <div class="form-group">
+                <label for="password_confirm">
+                    <i class="fas fa-lock"></i> Confirm Password
+                </label>
+                <input type="password" id="password_confirm" name="password_confirm" required minlength="8">
+            </div>
+            <button type="submit" class="btn-auth">
+                <i class="fas fa-user-plus"></i> Sign Up
+            </button>
+        </form>
+        <div class="auth-footer">
+            <p>Already have an account? <a href="{% url 'accounts:login' %}">Login</a></p>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('register-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    const data = Object.fromEntries(formData);
+    
+    if (data.password !== data.password_confirm) {
+        showNotification('Passwords do not match', 'error');
+        return;
+    }
+    
+    try {
+        const response = await axios.post('/api/auth/api/register/', data);
+        if (response.data.token) {
+            localStorage.setItem('token', response.data.token);
+            // Set axios default header
+            axios.defaults.headers.common['Authorization'] = 'Token ' + response.data.token;
+            showNotification('Registration successful!', 'success');
+            setTimeout(() => {
+                window.location.href = '/app/';
+            }, 1000);
+        }
+    } catch (error) {
+        const errorMsg = error.response?.data?.error || 
+                       error.response?.data?.password?.[0] || 
+                       error.response?.data?.username?.[0] ||
+                       'Registration failed';
+        showNotification(errorMsg, 'error');
+    }
+});
+</script>
+{% endblock %}
+

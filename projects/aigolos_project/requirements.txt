@@ -1,0 +1,50 @@
+# Django and core dependencies
+Django>=4.2.0,<5.0.0
+djangorestframework>=3.14.0,<4.0.0
+django-cors-headers>=4.0.0,<5.0.0
+
+# Database
+psycopg2-binary>=2.9.0,<3.0.0
+
+# HTTP client
+httpx>=0.25.0,<0.28.0
+
+# Server
+gunicorn>=21.0.0,<23.0.0
+whitenoise>=6.5.0,<7.0.0
+
+# Speech Recognition (ASR) - optional
+# Install separately: pip install faster-whisper
+
+# Text-to-Speech (TTS) - optional
+# Install Piper TTS separately from: https://github.com/rhasspy/piper/releases
+
+# Development
+python-dotenv>=1.0.0,<2.0.0
+
+# Testing
+pytest>=7.4.0,<8.0.0
+pytest-django>=4.7.0,<5.0.0
+pytest-cov>=4.1.0,<5.0.0
+pytest-mock>=3.12.0,<4.0.0
+factory-boy>=3.3.0,<4.0.0
+coverage>=7.3.0,<8.0.0
+
+# Security
+# Note: python-magic is optional for enhanced file type detection
+# Current implementation uses magic bytes validation without python-magic
+
+# API Documentation
+drf-spectacular>=0.26.0,<1.0.0
+
+# Filtering and Search
+django-filter>=23.0,<24.0
+
+# JSON Logging
+python-json-logger>=2.0.0,<3.0.0
+
+# Code Quality
+black>=23.0,<24.0
+flake8>=6.0,<7.0
+isort>=5.12,<6.0
+pre-commit>=3.0,<4.0

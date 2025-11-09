@@ -1,0 +1,46 @@
+version: "3.9"
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-rentmaster}
+      POSTGRES_USER: ${POSTGRES_USER:-rentmaster}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-rentmaster}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  web:
+    build: .
+    environment:
+      DJANGO_SETTINGS_MODULE: rentmaster.settings_dev
+      DATABASE_URL: postgres://$${POSTGRES_USER:-rentmaster}:$${POSTGRES_PASSWORD:-rentmaster}@db:5432/$${POSTGRES_DB:-rentmaster}
+      DEBUG: "true"
+      ALLOWED_HOSTS: "*"
+    depends_on:
+      - db
+      - redis
+    ports:
+      - "8000:8000"
+    command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+
+  worker:
+    build: .
+    environment:
+      DJANGO_SETTINGS_MODULE: rentmaster.settings_dev
+      DATABASE_URL: postgres://$${POSTGRES_USER:-rentmaster}:$${POSTGRES_PASSWORD:-rentmaster}@db:5432/$${POSTGRES_DB:-rentmaster}
+    depends_on:
+      - db
+      - redis
+    command: celery -A rentmaster worker -l info
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+
+volumes:
+  pgdata:
+
+

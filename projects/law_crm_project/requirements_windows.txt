@@ -1,0 +1,51 @@
+# Core Django - упрощенная версия для Windows
+Django==4.2.7
+# psycopg2-binary==2.9.9  # Заменен на pg8000 из-за проблем с кодировкой
+pg8000==1.31.5
+django-pg8000==0.0.5
+python-decouple==3.8
+
+# Аудит и безопасность
+django-auditlog==2.3.0
+django-guardian==2.4.0
+
+# Работа с документами (без Pillow - установим отдельно)
+python-docx==1.1.0
+reportlab==4.0.7
+
+# Поиск
+django-filter==23.5
+
+# API для интеграций
+requests==2.31.0
+beautifulsoup4==4.12.2
+
+# Хранилище файлов
+django-storages==1.14.2
+
+# FSM для управления состояниями дел
+django-fsm==2.8.1
+
+# Утилиты
+python-dateutil==2.8.2
+phonenumbers==8.13.26
+
+# Development
+django-debug-toolbar==4.2.0
+
+# WSGI сервер
+gunicorn==21.2.0
+waitress==3.0.2
+dj-database-url==3.0.1
+
+# Работа с Excel
+openpyxl==3.1.2
+
+# Валидация данных
+django-phonenumber-field==7.2.0
+
+# Celery (опционально - можно установить позже)
+# celery==5.3.4
+# redis==5.0.1
+# django-celery-beat==2.5.0
+
